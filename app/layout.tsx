@@ -1,16 +1,67 @@
+'use client'
+
 import './globals.css'
 import { Space_Mono } from 'next/font/google'
 import Link from 'next/link'
-import Image from 'next/image'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const spaceMono = Space_Mono({
   subsets: ['latin'],
   weight: ['400', '700'],
+  variable: '--font-space-mono',
 })
 
-export const metadata = {
-  title: 'Online Exhibition',
-  description: 'An immersive online art exhibition experience',
+function Navigation() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const menuItems = [
+    { href: '/', label: 'Home' },
+    { href: '/exhibition', label: 'Exhibition' },
+    { href: '/support', label: 'Support' }
+  ]
+
+  return (
+    <>
+      {/* Mobile Menu Button */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 right-4 z-50 p-2"
+        aria-label="Toggle menu"
+      >
+        <div className="space-y-2">
+          <div className="w-8 h-0.5 bg-white"></div>
+          <div className="w-8 h-0.5 bg-white"></div>
+          <div className="w-8 h-0.5 bg-white"></div>
+        </div>
+      </button>
+
+      {/* Full Screen Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black z-40 flex items-center justify-center"
+          >
+            <nav className="flex flex-col items-center space-y-8">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className="text-white text-2xl hover:text-gray-300 transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
 }
 
 export default function RootLayout({
@@ -22,27 +73,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={spaceMono.className}>
         <div className="min-h-screen bg-black flex flex-col">
-          <nav className="sticky top-0 z-50 bg-black bg-opacity-90 p-4">
-            <ul className="flex justify-center space-x-8">
-              <li><Link href="/" className="text-white hover:text-yellow-400">Home</Link></li>
-              <li><Link href="/exhibition" className="text-white hover:text-yellow-400">Exhibition</Link></li>
-              <li><Link href="/support" className="text-white hover:text-yellow-400">Support</Link></li>
-            </ul>
-          </nav>
-          
+          <Navigation />
           <main className="flex-grow">
             {children}
           </main>
-
-          <footer className="relative h-24 sm:h-32 md:h-40">
-            <Image
-              src="/images/Footer.jpg"
-              alt="Footer image"
-              layout="fill"
-              objectFit="contain"
-              priority
-            />
-          </footer>
         </div>
       </body>
     </html>

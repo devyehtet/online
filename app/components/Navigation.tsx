@@ -1,32 +1,75 @@
-import React from 'react'
-import { motion } from 'framer-motion'
+'use client'
 
-interface NavigationProps {
-  artworks: Array<{ id: number; title: string }>
-  currentArtwork: number
-  onNavigate: (index: number) => void
-}
+import { useState } from 'react'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 
-export default function Navigation({ artworks, currentArtwork, onNavigate }: NavigationProps) {
+const menuItems = [
+  { href: '/', label: 'Home' },
+  { href: '/exhibition', label: 'Exhibition' },
+  { href: '/support', label: 'Support' }
+]
+
+export default function Navigation() {
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-50 p-4">
-      <ul className="flex justify-center space-x-4">
-        {artworks.map((artwork, index) => (
-          <li key={artwork.id}>
-            <motion.button
-              className={`px-3 py-2 rounded-md text-sm font-medium ${
-                currentArtwork === index ? 'bg-white text-black' : 'text-white hover:bg-white hover:bg-opacity-20'
-              }`}
-              onClick={() => onNavigate(index)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {artwork.title}
-            </motion.button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <>
+      {/* Menu Button */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 right-4 z-50 p-2 focus:outline-none"
+        aria-label="Toggle menu"
+      >
+        <div className="space-y-1.5">
+          <motion.div
+            animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 8 : 0 }}
+            className="w-6 h-0.5 bg-white"
+          ></motion.div>
+          <motion.div
+            animate={{ opacity: isOpen ? 0 : 1 }}
+            className="w-6 h-0.5 bg-white"
+          ></motion.div>
+          <motion.div
+            animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -8 : 0 }}
+            className="w-6 h-0.5 bg-white"
+          ></motion.div>
+        </div>
+      </button>
+
+      {/* Full Screen Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black z-40 flex items-center justify-center"
+          >
+            <nav className="flex flex-col items-center space-y-8">
+              {menuItems.map((item) => (
+                <motion.div
+                  key={item.href}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 20, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Link
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className="text-white text-3xl hover:text-gray-300 transition-colors font-mono"
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
 
